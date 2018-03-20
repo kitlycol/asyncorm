@@ -1,0 +1,4 @@
+asyncorm>=0.3.7
+sanic==0.7.0
+django
+psycopg2

@@ -162,9 +162,8 @@ class CharField(Field):
     args = ('choices', 'db_column', 'db_index', 'default', 'max_length', 'null', 'unique',)
 
     def __init__(
-        self,
-        choices=None, db_column='', db_index=False, default=None, max_length=0, null=False, unique=False,
-    ):
+            self, choices=None, db_column='', db_index=False, default=None, max_length=0, null=False,
+            unique=False):
         super().__init__(
             choices=choices,
             db_column=db_column,
@@ -404,7 +403,10 @@ class ArrayField(Field):
                 raise FieldError('Array elements are not of the same type')
             if items_type == list:
                 if not all(len(item) == len(value[0]) for item in value):
-                    raise FieldError('Multi-dimensional arrays must have items of the same size')
+                    mssg = (
+                        'Multi-dimensional arrays must have items of the '
+                        'same size')
+                    raise FieldError(mssg)
         return value
 
     @staticmethod

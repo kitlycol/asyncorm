@@ -113,7 +113,7 @@ class Migrator(object):
             try:
                 latest_fs_migration = await app.check_makemigrations_status()
                 logger.info(latest_fs_migration)
-                migration = app.get_migration(latest_fs_migration).Migration()
+                app.get_migration(latest_fs_migration).Migration()
             except MigrationError as e:
                 logger.error('\nMigration Error: {}\n'.format(e))
 
