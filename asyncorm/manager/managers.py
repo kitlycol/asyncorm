@@ -7,7 +7,9 @@ from asyncorm.exceptions import (
     ModelDoesNotExist, ModelError, MultipleObjectsReturned, QuerysetError,
 )
 from asyncorm.models.fields import CharField, ForeignKey, ManyToManyField, NumberField, AutoField
+
 import datetime
+import json
 
 __all__ = ['ModelManager', 'Queryset']
 
@@ -28,7 +30,8 @@ LOOKUP_OPERATOR = {
     'iendswith': '{t_n}.{k} ILIKE \'%{v}\'',
     'regex': '{t_n}.{k} ~ {v}',
     'iregex': '{t_n}.{k} ~* {v}',
-    'date': '{t_n}.{k}::date = {v}::date'
+    'date': '{t_n}.{k}::date = {v}::date',
+    'isnull': '{t_n}.{k} {v}'
 }
 
 
@@ -348,12 +351,21 @@ class Queryset(object):
                 if not is_charfield:
                     raise QuerysetError('{} not allowed in non CharField fields'.format(lookup))
                 operator_formater['v'] = field.sanitize_data(v)
+            elif lookup == "isnull":
+                if v is True:
+                    operator_formater['v'] = "IS NULL"
+                elif v is False:
+                    operator_formater['v'] = "IS NOT NULL"
+                else:
+                    raise QuerysetError('{} not allowed lookup in bool value'.format(lookup))
             else:
                 if isinstance(v, (list, tuple)):
                     # check they are correct items and serialize
                     v = ','.join(
                         ["'{}'".format(field.sanitize_data(si))
                          if isinstance(si, str) else str(si) for si in v])
+                elif isinstance(v, dict):
+                    v = "'{}'".format(json.dumps(v))
                 elif v is None:
                     v = field.sanitize_data(v)[1:-1]
                     operator = operator.replace('=', 'IS')
